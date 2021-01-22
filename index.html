@@ -1,0 +1,51 @@
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+			function makeId(length) {
+				var result           = '';
+				var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+				var charactersLength = characters.length;
+				
+				for ( var i = 0; i < length; i++ ) {
+					result += characters.charAt(Math.floor(Math.random() * charactersLength));
+				}
+				return result;
+			}
+
+			function runIteration(jobId, processed) {
+				$.ajax({
+					method: "POST",
+					url: "index.php",
+					data: {
+						"job-id": jobId,
+						"processed": processed
+					}
+				}).done(function(result) {
+					if('filename' in result) {
+						alert('File ' + result.filename + ' is ready for downloading');
+					} else {
+						runIteration(jobId, result.processed);
+					}
+				});
+			}
+
+			function startDownload() {
+				var jobId = makeId(32);
+
+				$.ajax({
+					method: "POST",
+					url: "index.php",
+					data: {
+						"job-id": jobId
+					}
+				}).done(function(result) {
+					runIteration(jobId, result.processed)
+				});
+			}
+		</script>
+</head>
+<body>
+	<button onclick="startDownload();">Download</button>
+</body>
+</html>
